@@ -1,0 +1,28 @@
+// for WinXp
+#define _WIN32_WINNT 0x0501
+#include <windows.h>
+#include <stdio.h>
+ 
+int main()
+{
+// one process creates the mutex object.
+HANDLE hMutex;
+char * MName = "MyMutex";
+ 
+hMutex = CreateMutex(
+    NULL,        // no security descriptor
+    FALSE,     // mutex not owned
+    MName);   // object name
+ 
+if (hMutex == NULL)
+    printf("CreateMutex(): error: %d.\n", GetLastError());
+else
+{
+    if (GetLastError() == ERROR_ALREADY_EXISTS)
+       printf("CreateMutex(): opened existing %s mutex.\n", MName);
+    else
+       printf("CreateMutex(): new %s mutex successfully created.\n", MName);
+}
+ 
+ return 0;
+}
