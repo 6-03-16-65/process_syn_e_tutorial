@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <semaphore.h>
+sem_t sem1, sem2;
+ 
+int main(void)
+{
+int     i, j, fd;
+pid_t   pid;
+sem_init(&sem1, 1, 0);
+sem_init(&sem2, 1, 0);
+ 
+ 
+/* fork a new process */
+if (fork() == 0) {
+        /* The child will run this section of code */
+        for (j=0;j<5;j++)
+                {
+                /* have the child "wait" for the semaphore */
+                printf("Child PID(%d): waiting on sem1\n", getpid());
+                sem_wait(&sem1);
+                /* the child decremented the semaphore */
+                printf("Child PID(%d): decremented sem1.\n", getpid());
+                sem_post(&sem2);
+                printf("Chile PID(%d): posting sem2.\n", getpid());
+                }
+        /* exit the child process */
+        printf("Child PID(%d): exiting...\n", getpid());
+        exit;
+} else {
+    /* The parent will run this section of code */
+    /* give the child a chance to start running */
+    sleep(2);
+    for (i=0;i<5;i++)
+        {
+                /* increment (post) the semaphore */
+                printf("Parent PID(%d): posting sem1.\n", getpid());
+                sem_post(&sem1);
+                printf("Parent PID(%d): waiting on sem2\n", getpid());
+                sem_wait(&sem2);
+                printf("Parent PID(%d): decremented sem2.\n", 
+                        getpid());
+        }
+        /* exit the parent process */
+        printf("Parent PID(%d): exiting...\n", getpid());
+        return 0;
+}
