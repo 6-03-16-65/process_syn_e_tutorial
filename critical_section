@@ -1,0 +1,31 @@
+class lock
+{
+  CRITICAL_SECTION h;
+  lock(lock const &);
+  lock const & operator=(lock const &);
+public:
+  lock()
+  {
+    InitializeCriticalSection(&h);
+  }
+  ~lock()
+  {
+    DeleteCriticalSection(&h);
+  }
+  void enter()
+  {
+    EnterCriticalSection(&h);
+  }
+  bool try_enter()
+  {
+    return 0 != TryEnterCriticalSection(&h);
+  }
+  void exit()
+  {
+    LeaveCriticalSection(&h);
+  }
+  CRITICAL_SECTION * handle()
+  {
+    return &h;
+  }
+};
